@@ -1,0 +1,208 @@
+#!/bin/sh
+
+replace_ip_for_host() {
+    while read -r ip ; do 
+        temp=$(host "$ip" | sed '/not found/d')
+        if [ -z "$temp" ]; then # host not found, return ip
+            echo "$ip"
+        else
+            echo "$temp" | rev | cut -d " " -f 1 | rev
+        fi 
+    done
+}
+
+validate_datetime() {
+    check="$(echo "$1" | grep -E "^[12][0-9]{3}-((0[0-9])|(1[0-2]))-(([0-2][0-9])|3[01]) ([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$")";
+    if [ -z "$check" ]; then
+        >&2 echo "Format of the argument ""$1"" is not correct."
+        exit 1
+    fi
+}
+
+validate_ip_address() {
+    check="$(echo "$1" | grep -E "(^([0-9a-fA-F]{0,4}:){2,7}[0-9a-fA-F]{0,4}$)|(^(([01]{0,1}[0-9]{1,2}|2[0-5]{2})\.){3}([01]{0,1}[0-9]{1,2}|2[0-5]{2})$)")";
+    if [ -z "$check" ]; then
+        >&2 echo "Format of the argument ""$1"" is not correct."
+        exit 1
+    fi
+}
+
+read_from_files_or_stdin() {
+    if [ $# = 0 ] ; then
+        cat < /dev/stdin
+    else
+        while [ $# -gt 0 ] ; do
+            if [ ! -f "$1" ]; then
+                >&2 echo "File or command $1 doesn't exist."
+                exit 1
+            fi
+            # unzip if neccessary
+            if [ "$(echo "$1" | rev | awk '/^zg./' | wc -l)" -gt 0 ]; then
+                gunzip -c "$1"
+            else
+                cat "$1"
+            fi
+            shift
+        done
+    fi
+}
+
+get_date_from_line() {
+    cut -d " " -f 4 | sed 's/\[//1; s/\// /g; s/:/ /1' | awk -F ' ' '{print $3"-"$2"-"$1" "$4}' \
+    | sed 's/Jan/01/; s/Feb/02/; s/Mar/03/; s/Apr/04/; s/May/05/; s/Jun/06/; s/Jul/07/; s/Aug/08/; s/Sep/09/; s/Oct/10/; s/Nov/11/; s/Dec/12/;' 
+}
+
+convert_date_to_number() {
+    echo "$1" | sed 's/[- :]//g' 
+}
+
+filter_dates() {
+        awk -v after="$after" -v before="$before" '{
+                datetime = substr($4, 2);
+                gsub("/", ":", datetime);
+                parts_len = split(datetime, parts, ":");
+
+                tmp = parts[1];
+                parts[1] = parts[3];
+                parts[3] = tmp;
+                
+                months = "JanFebMarAprMayJunJulAugSepOctNovDec";
+                idx = match(months, parts[2])
+                parts[2] = sprintf("%02d", ((idx + 2) / 3));
+
+                result = parts[1];
+                for (i = 2; i <= parts_len; i++)
+                    result = result parts[i]
+
+                if ((after == "" || after < result) &&
+                    (before == "" || before > result)) 
+                    print $0
+            }'
+}
+
+read_and_filter() {
+    uri=$(echo "$uri" | sed 's/\\/\\\\/g') # double escape character \ for awk
+    read_from_files_or_stdin "$@" | filter_dates | awk -v ip="$ip" -v uri="$uri" '{
+                should_print = 0;
+                if ($6 == "\"GET" || $6 == "\"POST" || $6 == "\"HEAD" || uri == "") {
+                    if (match($7, uri) || uri == "") {
+                        should_print++;
+                    }
+                }
+                if ($1 == ip || ip == "") {
+                    should_print++;
+                }
+                if (should_print == 2)
+                    print $0
+                }'
+}
+
+#load filters
+while [ $# -gt 0 ] ; do
+    case "$1" in
+        -a)
+            if [ -n "$after" ]; then
+                >&2 echo "Argument -a was already set."
+                exit 1
+            fi
+            after=$2
+            validate_datetime "$after"
+            after="$(convert_date_to_number "$after")"
+            shift 2
+            ;;
+        -b)
+            if [ -n "$before" ]; then
+                >&2 echo "Argument -b was already set."
+                exit 1
+            fi
+            before=$2
+            validate_datetime "$before"
+            before="$(convert_date_to_number "$before")"
+            shift 2
+            ;;
+        -ip)
+            if [ -n "$ip" ]; then
+                >&2 echo "Argument -ip was already set."
+                exit 1
+            fi
+            ip=$2
+            validate_ip_address "$ip"
+            shift 2
+            ;;
+        -uri)
+            if [ -n "$uri" ]; then
+                >&2 echo "Argument -uri was already set."
+                exit 1
+            fi
+            uri=$2
+            shift 2
+            ;;
+        *) # found something else than filter (probably command)
+            break;
+            ;;
+    esac
+done
+
+#load command
+case "$1" in
+        list-ip)
+            command=list-ip
+            ;;
+        list-hosts)
+            command=list-hosts
+            ;;
+        list-uri)
+            command=list-uri
+            ;;
+        hist-ip)
+            command=hist-ip
+            ;;
+        hist-load)
+            command=hist-load
+            ;;
+        *) # command not found, something else was found (might be log file)
+            ;;
+    esac
+# if command was set, shift one argument
+if [ -n "$command" ]; then
+    shift
+fi
+
+    # process command
+    case "$command" in
+        hist-ip)
+            read_and_filter "$@" | grep "." | cut -d " " -f 1 | sort -k 2 | uniq -c | sort -r -n -k 1 | awk '{printf $2" ("$1"): "
+                for (i = 0; i < $1; i++) 
+                    printf "#"
+                printf "\n"
+            }'
+            ;;
+        hist-load)
+            read_and_filter "$@" | grep "." | get_date_from_line | awk -F '[ :]' '{
+                    print $1" "$2
+                }' | sort -k 1,2 | uniq -c | awk '{printf $2" "$3":00 ("$1"): "
+                    for (i = 0; i < $1; i++) 
+                        printf "#"
+                    printf "\n"
+                }' 
+            ;;
+        list-ip)
+            read_and_filter "$@" | grep "." | cut -d " " -f 1 | sort -k 1 -u
+            ;;
+        list-hosts)
+            read_and_filter "$@" | grep "." | cut -d " " -f 1 | replace_ip_for_host | sort -k 1 -u
+            ;;
+        list-uri)
+            read_and_filter "$@" | grep "." | awk '{
+                if ($6 == "\"GET" || $6 == "\"POST" || $6 == "\"HEAD") {
+                    print $7
+                }
+            }' | sort -k 1 -u
+            ;;
+        *) 
+            # no command, list all records
+            read_and_filter "$@"
+            ;;
+    esac
+ 
+    
