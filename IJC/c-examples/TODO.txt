@@ -1,0 +1,10 @@
+
+TODO:
+
+- presunout vse do podadresaru, doplnit doc/
+- doplnit referencni vystupy
+- doplnit komentare
+- prelozit do en
+- doplnit priklady pouziti knihoven: GSL, gd, libpng, ...
+- pokrocilejsi algoritmy
+

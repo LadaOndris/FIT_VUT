@@ -1,0 +1,127 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 3.0//EN//">
+<HTML VERSION="3">
+<HEAD>
+<TITLE>Jazyk C: Priklad 4 </TITLE>
+</HEAD>
+
+<H1>Jazyk C: Pøíklad 4</H1>
+
+<HR>
+<H1>Chybné øe¹ení:</H1>
+(správnì mají být sdílené deklarace v hlavièkovém 
+souboru, aby se zabránilo pøípadné nekonzistenci - viz dále)
+<HR>
+
+<XMP>
+/* 
+ *  x1.c -- ukázka programu sestaveného ze dvou modulù
+ *
+ *  modul x1 se musí sestavit s modulem x2 (x2.c)
+ *
+ */
+
+extern int x2;     /* deklarace externí promìnné x2       */
+                   /* tato promìnná je v modulu x2        */
+                   /* spoléháme se na to, ¾e je int       */
+                   /* zkuste extern char -- uvidíte chybu */
+
+void x1(void)      /* funkce dostupná z jiných modulù */
+{
+  --x2;
+}
+</XMP>
+<HR>
+<XMP>
+/*  
+ *  x2.c -- ukázka programu sestaveného ze dvou modulù
+ *
+ *  modul x2 se musí sestavit s modulem x1 (x1.c) napøíklad takto:
+ *
+ *     cc x2.c x1.c
+ *
+ *  UPOZORNÌNÍ: pøekladaè nekontroluje konzistenci deklarací x1 a x2
+ */
+
+#include <stdio.h>
+
+int x2 = 0;             /* promìnná dostupná z jiných modulù         */
+
+void x1(void);          /* deklarace externí funkce x1               */
+                        /* tato funkce je v modulu x1                */
+
+int main()              /* funkce main musí být jen jedna            */
+{
+  printf("%d\n", x2);
+  x1();                 /* volání externí funkce x1                  */
+  printf("%d\n", x2);
+  return 0;
+}
+</XMP>
+
+<HR>
+<H1>Správné øe¹ení:</H1>
+<HR>
+<XMP>
+/* x.h -- spoleèné rozhraní modulù x1.c a x2.c */
+extern int x2;  /* deklarace externí promìnné x2 */
+                /* zkuste zmìnit na char 
+                   - pøekladaè odhalí chybu 
+                     pøi pøekladu modulu x2.c */
+void x1(void);  /* funkce x1 dostupná z jiných modulù */
+/* konec x.h */
+</XMP>
+<HR>
+<XMP>
+/* 
+ *  x1.c -- ukázka programu sestaveného ze dvou modulù
+ *
+ *  modul x1 se musí sestavit s modulem x2 (x2.c)
+ *
+ */
+
+#include "x.h"     /* dovezeme spoleèné deklarace */
+
+void x1(void)      /* definice externí funkce */
+{
+  --x2;
+}
+</XMP>
+<HR>
+<XMP>
+/*  
+ *  x2.c -- ukázka programu sestaveného ze dvou modulù
+ *
+ *  modul x2 se musí sestavit s modulem x1 (x1.c) napøíklad takto:
+ *
+ *     cc x2.c x1.c
+ *
+ */
+
+#include <stdio.h>
+#include "x.h"          /* dovezeme spoleèné deklarace */
+
+int x2 = 0;             /* definice externí promìnné */
+
+int main()              /* funkce main musí být jen jedna */
+{
+  printf("%d\n", x2);
+  x1();                 /* volání externí funkce x1 */
+  printf("%d\n", x2);
+  return 0;
+}
+</XMP>
+
+<HR>
+
+
+<ADDRESS>
+Poslední modifikace: <!--#flastmod file="$DOCUMENT_NAME"--> 
+<BR>
+Pøipomínky k obsahu stránky posílejte na e-mail:
+peringer AT fit.vutbr.cz
+</ADDRESS>
+
+</body>
+</html>
+
+
