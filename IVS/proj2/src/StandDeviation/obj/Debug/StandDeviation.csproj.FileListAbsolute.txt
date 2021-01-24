@@ -1,0 +1,10 @@
+C:\Users\ladis\source\repos\IVS\src\StandDeviation\bin\Debug\StandDeviation.exe.config
+C:\Users\ladis\source\repos\IVS\src\StandDeviation\bin\Debug\StandDeviation.exe
+C:\Users\ladis\source\repos\IVS\src\StandDeviation\bin\Debug\StandDeviation.pdb
+C:\Users\ladis\source\repos\IVS\src\StandDeviation\bin\Debug\MathLibrary.dll
+C:\Users\ladis\source\repos\IVS\src\StandDeviation\bin\Debug\MathLibrary.pdb
+C:\Users\ladis\source\repos\IVS\src\StandDeviation\obj\Debug\StandDeviation.csprojAssemblyReference.cache
+C:\Users\ladis\source\repos\IVS\src\StandDeviation\obj\Debug\StandDeviation.csproj.CoreCompileInputs.cache
+C:\Users\ladis\source\repos\IVS\src\StandDeviation\obj\Debug\StandDeviation.csproj.CopyComplete
+C:\Users\ladis\source\repos\IVS\src\StandDeviation\obj\Debug\StandDeviation.exe
+C:\Users\ladis\source\repos\IVS\src\StandDeviation\obj\Debug\StandDeviation.pdb

@@ -1,0 +1,12 @@
+C:\Users\ladis\source\repos\ivs_calculator\MathLibrary\bin\Debug\MathLibrary.dll
+C:\Users\ladis\source\repos\ivs_calculator\MathLibrary\bin\Debug\MathLibrary.pdb
+C:\Users\ladis\source\repos\ivs_calculator\MathLibrary\obj\Debug\MathLibrary.csprojAssemblyReference.cache
+C:\Users\ladis\source\repos\ivs_calculator\MathLibrary\obj\Debug\MathLibrary.csproj.CoreCompileInputs.cache
+C:\Users\ladis\source\repos\ivs_calculator\MathLibrary\obj\Debug\MathLibrary.dll
+C:\Users\ladis\source\repos\ivs_calculator\MathLibrary\obj\Debug\MathLibrary.pdb
+C:\Users\ladis\source\repos\IVS\src\MathLibrary\bin\Debug\MathLibrary.dll
+C:\Users\ladis\source\repos\IVS\src\MathLibrary\bin\Debug\MathLibrary.pdb
+C:\Users\ladis\source\repos\IVS\src\MathLibrary\obj\Debug\MathLibrary.csproj.CoreCompileInputs.cache
+C:\Users\ladis\source\repos\IVS\src\MathLibrary\obj\Debug\MathLibrary.dll
+C:\Users\ladis\source\repos\IVS\src\MathLibrary\obj\Debug\MathLibrary.pdb
+C:\Users\ladis\source\repos\IVS\src\MathLibrary\obj\Debug\MathLibrary.csprojAssemblyReference.cache
