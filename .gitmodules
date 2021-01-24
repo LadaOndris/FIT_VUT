@@ -1,0 +1,15 @@
+[submodule "IMP"]
+	path = IMP
+	url = https://github.com/LadaOndris/IMP
+[submodule "ims"]
+	path = ims
+	url = https://github.com/LadaOndris/ims
+[submodule "IIS"]
+	path = IIS
+	url = https://github.com/LadaOndris/IIS
+[submodule "ISA"]
+	path = ISA
+	url = https://github.com/LadaOndris/ISA
+[submodule "izv-proj"]
+	path = izv-proj
+	url = https://github.com/LadaOndris/izv-proj
